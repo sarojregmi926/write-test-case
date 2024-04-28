@@ -1,70 +1,164 @@
-# Getting Started with Create React App
+### App.js
+```
+import './App.css';
+import Text from "./components/Text"
+import Button from "./components/Button"
+import { useState } from 'react';
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+function App() {
+  const [toggle, setToggle] = useState(true);
+  return (
+    <div className="App">
+      <Text toggle={toggle} displayTxt="GeeksForGeeks" />
+      <Button setToggle={setToggle} btnTxt="Toggle Text" />
+    </div>
+  );
+}
 
-## Available Scripts
+export default App;
 
-In the project directory, you can run:
 
-### `npm start`
+```
+```
+Test 1: Testing whether all the components have rendered
+Test 2: Testing the default value of the text element
+Test 3: Testing the toggle ability of the button
+```
+### App.test.js
+```
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import App from './App';
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+afterEach(() => {
+  cleanup();
+})
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `npm test`
+describe("App Component", () => {
+  // Test 1
+  test("App Rendering", () => {
+    render(<App />);
+    const text = screen.getByTestId('text');
+    const button = screen.getByTestId('button');
+    expect(button).toBeInTheDocument();
+    expect(text).toBeInTheDocument();
+  })
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+  // Test 2
+  test("Default Text", ()=>{
+    render(<App/>);
+    const text = screen.getByTestId('text');
+    expect(text).toHaveTextContent("GeeksForGeeks");
+  });
+// Test 3
+test("Toggling Text", ()=>{
+  render(<App/>);
+  const text = screen.getByTestId("text");
+  const button = screen.getByTestId("button");
+  expect(text).toHaveTextContent("GeeksForGeeks");
+  fireEvent.click(button);
+  expect(text).toBeEmptyDOMElement();
+  fireEvent.click(button);
+  expect(text).toHaveTextContent("GeeksForGeeks");
+})
 
-### `npm run build`
+})
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+### Text.js
+```
+import React from 'react'
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+const Text = ({ toggle, displayTxt }) => {
+    return (
+        <h1 data-testid="text">{toggle ? displayTxt : ""}</h1>
+    )
+}
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+export default Text
+```
+### Test.test.js
+```
+Testing the Text Component: We are going to perform three tests on the Text Component.
 
-### `npm run eject`
+Test 1: Testing if the text element is rendered correctly to the DOM.
+Test 2: Testing the content of the text element when the toggle is set to true.
+Test 3: Testing the content of the text element when the toggle is set to false.
+```
+```
+import { cleanup, render, screen } from "@testing-library/react";
+import Text from "./Text";
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+afterEach(() => {
+    cleanup();
+})
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+describe("Text Component", () => {
+    //test 1
+    test("Text Rendering", () => {
+        render(<Text toggle={true} displayTxt={"GeeksForGeeks"} />);
+        const text = screen.getByTestId("text");
+        expect(text).toBeInTheDocument();
+    })
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+    // Test 2
+    test("Displayed Text when toggle is set to true", () => {
+        render(<Text toggle={true} displayTxt={"GeeksForGeeks"} />);
+        const text = screen.getByTestId("text");
+        expect(text).toHaveTextContent("GeeksForGeeks");
+    });
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+    // Test 3
+    test("Displayed Text when toggle is set to false", () => {
+        render(<Text toggle={false} displayTxt={"GeeksForGeeks"} />);
+        const text = screen.getByTestId("text");
+        expect(text).toBeEmptyDOMElement();
+    })
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+});
+```
+### Button.js
+```
+import React from 'react'
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+const Button = ({ setToggle, btnTxt }) => {
+    return (
+        <button data-testid="button" onClick={() => setToggle(prev => !prev)}>
+            {btnTxt}
+        </button>
+    )
+}
+export default Button;
+```
+### Button.test.js
+ 
+```
+1. Button has setToogle function so set it mock
+2. Render Button component with props setToogle and btnTxt; // define values of props too
+3. Test: Button is present in the document(<button> tag) and Button has text "Click me"
 
-### Code Splitting
+```
+```
+import Button from "./Button";
+import {render, screen, cleanup } from "@testing-library/react"
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+afterEach(() => {
+    cleanup();
+})
 
-### Analyzing the Bundle Size
+describe("Button Component", () => {
+    const setToggle = jest.fn();
+    render(<Button setToggle={setToggle} btnTxt="Click Me!" />);
+    const button = screen.getByTestId("button");
+    // Test 1
+    test("Button Rendering", () => {
+        expect(button).toBeInTheDocument();
+    })
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+    // Test 2
+    test("Button Text", () => {
+        expect(button).toHaveTextContent("Click Me!");
+    })
+})
+```
